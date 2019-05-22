@@ -1,6 +1,6 @@
 {
   "name": "@tschallacka/oc.foundation.base",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "The base october foundation class where your own applications can extend from",
   "main": "oc.foundation.base.js",
   "scripts": {
@@ -20,7 +20,8 @@
   "dependencies": {
     "jquery": "*",
     "@tschallacka/jquery.oc.foundation": "*",
-    "@tschallacka/jquery.request": "*"
+    "@tschallacka/jquery.request": "*",
+    "@tschallacka/oc.foundation.controlutils": "*"
   },
   "author": "Tschallacka, OctoberCMS",
   "license": "MIT",

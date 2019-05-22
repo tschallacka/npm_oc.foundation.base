@@ -1,41 +1,69 @@
 var $ = require('jquery');
+var controlUtils = require('@tschallacka/oc.foundation.controlutils');
 
-var Base = function() {
+var Base = function(appName, element, options) 
+{
     this.proxiedMethods = {}
-}
+    if(typeof appName != 'undefined') {
+    	this.appName = appName;
+    }
+    if(typeof this.appName == 'undefined' || this.appName === null) {
+    	throw new Error("No appName defined for application");
+    }
+    this.appID = this.appName.replace(/[^a-z]+/gi, '').replace(/(.)([A-Z])/g, "$1-$2").toLowerCase();
+    this.appDataHandler = '[data-'+this.appID+']';	
+    this.oc = 'oc.'+this.appName;
+    this.$el = $(element); 
+	this.options = options || {};
+	if(element) {
+    	controlUtils.markDisposable(element);
+    	this.sysInit();
+	}
+};
 
-Base.prototype.dispose = function() {
+/**
+ * Removes all proxied methods.
+ */
+Base.prototype.dispose = function() 
+{
     for (var key in this.proxiedMethods) {
-        this.proxiedMethods[key] = null
+    	if(this.proxiedMethods.hasOwnProperty(key)) {
+    		this.proxiedMethods[key] = null
+    	}
     }
 
     this.proxiedMethods = null
-}
+};
 
-/*
+/**
  * Creates a proxied method reference or returns an existing proxied method.
+ * @param method function
  */
-Base.prototype.proxy = function(method) {
-    if (method.ocProxyId === undefined) {
-    	
+Base.prototype.proxy = function(method) 
+{	
+    if (method.ocProxyId === undefined) {    	
         $.oc.foundation._proxyCounter++
         method.ocProxyId = $.oc.foundation._proxyCounter
     }
 
-    if (this.proxiedMethods[method.ocProxyId] !== undefined)
-        return this.proxiedMethods[method.ocProxyId]
+    if (this.proxiedMethods[method.ocProxyId] !== undefined) {
+        return this.proxiedMethods[method.ocProxyId];
+    }
 
-    this.proxiedMethods[method.ocProxyId] = method.bind(this)
-    return this.proxiedMethods[method.ocProxyId]
-}
+    this.proxiedMethods[method.ocProxyId] = method.bind(this);
+    return this.proxiedMethods[method.ocProxyId];
+};
 
 /**
  * Register method to register your variables so they will automatically be cleaned up.
+ * @param name string
+ * @param value variable
  */
-Base.prototype.alloc = function(name,value) {
+Base.prototype.alloc = function(name, value) 
+{
 	this.alloclist.push(name);
 	this[name] = value;
-}
+};
 
 /**
  * clean method that cleans up all variables set by alloc.
@@ -43,37 +71,44 @@ Base.prototype.alloc = function(name,value) {
  */
 Base.prototype.free = function() 
 {
-	for(var c=0; c < this.alloclist.length; c++) 
+	for(var c = 0; c < this.alloclist.length; c++) 
 	{
 		var name = this.alloclist[c];
 		this[name] = null;
 	}
 	this.alloclist = null;
-}
+};
 
 /**
  * Quick method for binding and unbinding event handlers.
  * this.bind('click',this.$el,this.something);
  * this.bind('click',this.$el,'[data-foobar]',this.somethingelse);
+ * @param event string
+ * @param $el jQuery
+ * @param callback_or_subselector string|function
+ * @param callback undefined|function
  */
-Base.prototype.bind = function(event, $el,  callback_or_subselector, callback) {
-	if(typeof callback_or_subselector === 'string') 
-	{
-		$el[this.event_binding_type](event,callback_or_subselector,this.proxy(callback));
+Base.prototype.bind = function(event, $el, callback_or_subselector, callback) 
+{
+	if(typeof callback_or_subselector === 'string') {
+		$el[this.event_binding_type](event, callback_or_subselector, this.proxy(callback));
 	}
 	else {
-		$el[this.event_binding_type](event,this.proxy(callback_or_subselector));
+		$el[this.event_binding_type](event, this.proxy(callback_or_subselector));
 	}
-}
+};
 
-
+/**
+ * Destroys the application completely
+ * Usually called via the dispose route
+ */
 Base.prototype.sysDestroy = function() 
 {
 	this.event_binding_type='off';
 	this.handlers(this.event_binding_type);
 	this.destroy();
 	this.free();
-	this.$el.off('dispose-control', this.proxy(this.dispose))
+	this.$el.off('dispose-control', this.proxy(this.dispose));
     this.$el.removeData(this.oc);
 	this.requesthandle = null;
     this.$el = null
@@ -85,20 +120,37 @@ Base.prototype.sysDestroy = function()
     BaseProto.dispose.call(this)
 };
 
+/**
+ * Returns the namespaced apphandle for ajax requests
+ * @param name string
+ * @return string
+ */
 Base.prototype.getHandle = function(name) 
 {
 	if(this.handle) {
 		return this.handle + name;
 	}
 	this.handle = this.$el.data('apphandler');
+	if(this.handle != null && this.handle.match(/::$/) != null) {
+		this.handle += '::';
+	}
 	return this.getHandle(name);
-}
+};
 
-Base.prototype.request = function(requestname,data) 
+/**
+ * Performs an ajax request
+ * @param requestname where to send a request to.
+ * @param data data to send on the request { success: function, complete: function, data: {}, error: function() }
+ * @returns request object
+ */
+Base.prototype.request = function(requestname, data) 
 {
-	return this.$el.request(this.getHandle(requestname),data);
-}
+	return this.$el.request(this.getHandle(requestname), data);
+};
 
+/**
+ * Initialisation of the underlying object
+ */
 Base.prototype.sysInit = function() 
 {
 	this.$el.one('dispose-control', this.proxy(this.sysDestroy));
@@ -106,25 +158,27 @@ Base.prototype.sysInit = function()
 	this.alloclist = [];
 	this.init();
 	this.handlers(this.event_binding_type);
-	
-}
+};
 
-Base.prototype.registerGlobalVersion = function(appVersion, appName) {
-	var res = window.hasOwnProperty(appName+"_version") ? window[appName+"_version"] : 0;
-	if(res == undefined || res < appVersion ) {
-		window[appName+"_version"] = appVersion;
-	}
-}
-
+/**
+ * Trigger that needs to be called from the application
+ * itself.
+ * +function(appClazz) {
+ * 	 var app = new appClazz();
+ *   app.bindApplication();
+ * }(Application);
+ */
 Base.prototype.bindApplication = function() {
 	var Application = this.constructor;
-	var old = $.fn[appName]
+	
 	var oc = this.oc;
 	var appName = this.appName;
+	var old = $.fn[appName];
 	var appDataHandler = this.appDataHandler;
 	var appVersion = this.appVersion;
+	
     $.fn[appName] = function (option) {
-        var args = Array.prototype.slice.call(arguments, 1), items, result
+        var args = Array.prototype.slice.call(arguments, 1), items, result;
         
         items = this.each(function (index, elem) {
             var $this   = $(elem);
@@ -136,32 +190,25 @@ Base.prototype.bindApplication = function() {
             }
             if (typeof option == 'string') {
             	result = data[option].apply(data, args);
-            	
-            }
-            
+            }            
             if (typeof result != 'undefined') {
             	return false;
             }
-            ;
         });
 
-        return result ? result : items
+        return result ? result : items;
     };
 
     $.fn[appName].Constructor = Application;
 
     $.fn[appName].noConflict = function () {
-        $.fn[appName] = old
-        return this
+        $.fn[appName] = old;
+        return this;
     };
 
-    // Add this only if required
     $(document).on('render', function (){
-        if(window[appName+"_version"] == appVersion) {
-            var $elems = $(appDataHandler);
-            $elems[appName]();
-        }
-    	
+        var $elems = $(appDataHandler);
+        $elems[appName]();
     });
 } 
 
