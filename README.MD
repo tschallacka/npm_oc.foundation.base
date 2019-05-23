@@ -9,6 +9,7 @@ See https://octobercms.com/docs/ui/foundation
 
 
 # Example:
+js/myApplication.js
 ```
 var $ = require('jquery');
 var Base = require('@tschallacka/oc.foundation.base');
@@ -17,14 +18,14 @@ var Base = require('@tschallacka/oc.foundation.base');
  * Set here your default application name.
  * Any capital letter will be replaced by lowercase and a - will be inserted 
  * in between.
- * ApplicationForBearTraps turns into application-for-bear-traps and 
- * this script will tag elements with the attributes <div data-application-for-bear-traps>
+ * WhoIsTheCaptain turns into who-is-the-captain and 
+ * this script will tag elements with the attributes <div data-who-is-the-captain>
  *
  * The formatted name will be stored in the variable  `appID` 'app-data-handler'
  * the jQuery selector will be stored in the variable `appDataHandler` [data-app-data-handler]
  * the instance reference will be 'oc.appDataHandler' which can be gotten by $(appDataHandler).data('oc.appDataHandler')
  */
-var APPNAME = 'ImageWithAttributionLicense';
+var APPNAME = 'WhoIsTheCaptain';
 
 var Application = function (element, options) 
 {
@@ -41,9 +42,10 @@ Application.prototype.constructor = Application;
 
 /**
  * Bind jQuery event handlers here. 
- * @var type is the event type('on') or ('off') for binding and unbinding events
+ * @var type is the event type('on') or ('off') for binding and unbinding events manually
  * this.$el[type]('click',this.proxy(this.something));
  * 
+ * If you just wish the Base to handle it use the 'bind' helper method.
  * this.bind('click',this.$el,this.something);
  * this.bind('click',this.$el,'.some-subclass',this.somethingelse);
  */
@@ -61,12 +63,11 @@ Application.prototype.handlers = function(type)
  * only difference is that the alloc'ed variable will be cleand up automatically on destroy
  * whislt the foobar needs a this.foobar=null in the destroy function.
  */
-Application.prototype.init = function() {
-	
-	this.alloc('$prepend', $('<div></div>'));
-	var $parent = this.$el.parent();
-	$parent.addClass('look-at-me');    	
-	$parent.append(this.$prepend);
+Application.prototype.init = function() 
+{	
+	this.alloc('$prepend', $('<div>I am the captain now</div>'));
+	this.$el.addClass('look-at-me');    	
+	this.$el.append(this.$prepend);
 	this.$prepend.addClass('i-am-special');		
 }
 
@@ -76,8 +77,10 @@ Application.prototype.init = function() {
  * This is called AFTER the event handlers are unbound.
  * and BEFORE the variables that were set in alloc() are unbound.
  */
-Application.prototype.destroy = function() {
-	
+Application.prototype.destroy = function() 
+{
+    this.$el.find('i-am-special').remove();
+    this.$el.removeClass('look-at-me');
 }
 
 Application.prototype.showDetails = function(e) 
@@ -86,12 +89,22 @@ Application.prototype.showDetails = function(e)
 };
 
 /**
- * scoped so it doesn't hang around longer than it needs to.
+ * You can also put this in your index.js if you need more control/overview
+ * over when your applications are bound, or for testing.
+ * Example code:
+ * var Base = require('@tschallacka/oc.foundation.base');
+ * Base.bindToRender(require('js/myApplication.js'));
  */
-+function(appClazz) {
-	var app = new appClazz();
-	app.bindApplication();
-}(Application);
+ */
+Base.bindToRender(Application);
 
 module.exports = Application;
 ```
+
+myPartial.html 
+```
+<div data-who-is-the-captain>
+   I am the captain!
+</div>
+```
+

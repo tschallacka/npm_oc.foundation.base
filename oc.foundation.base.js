@@ -161,21 +161,25 @@ Base.prototype.sysInit = function()
 };
 
 /**
- * Trigger that needs to be called from the application
- * itself.
- * +function(appClazz) {
- * 	 var app = new appClazz();
- *   app.bindApplication();
- * }(Application);
+ * Trigger that needs to be called from where
+ * the application is required(index.js)
+ * 
+ * This will make sure that when the render event is triggered on the document
+ * that this application will automagically bind to the relevant objects.
+ * 
+ * Otherwise you can bind your Application manually however you wish to bind it
+ * 
+ * Example code:
+ * var Base = require('@tschallacka/oc.foundation.base');
+ * Base.bindToRender(require('js/myApplication.js'));
  */
-Base.prototype.bindApplication = function() {
-	var Application = this.constructor;
-	
-	var oc = this.oc;
-	var appName = this.appName;
+Base.bindToRender = function(Application) {
+	var app = new Application();
+	var oc = app.oc;
+	var appName = app.appName;
 	var old = $.fn[appName];
-	var appDataHandler = this.appDataHandler;
-	var appVersion = this.appVersion;
+	var appDataHandler = app.appDataHandler;
+	var appVersion = app.appVersion;
 	
     $.fn[appName] = function (option) {
         var args = Array.prototype.slice.call(arguments, 1), items, result;
@@ -210,6 +214,6 @@ Base.prototype.bindApplication = function() {
         var $elems = $(appDataHandler);
         $elems[appName]();
     });
-} 
+}
 
 module.exports = Base;
