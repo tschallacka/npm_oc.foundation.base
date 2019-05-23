@@ -72,6 +72,15 @@ Application.prototype.init = function()
 }
 
 /**
+ * This method is called before destruction is initiated. Everything still exists here.
+ * this is the point where you make last minute requests without waiting for an answer.
+ * It needs no return value, the end is inevetable.
+ */
+Application.prototype.beforeDestroy = function() 
+{
+}
+
+/**
  * This code is called when the application is being destroyed/cleaned up.
  * Deinitialise/null your variables here.
  * This is called AFTER the event handlers are unbound.

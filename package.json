@@ -1,6 +1,6 @@
 {
   "name": "@tschallacka/oc.foundation.base",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "The base october foundation class where your own applications can extend from",
   "main": "oc.foundation.base.js",
   "scripts": {
