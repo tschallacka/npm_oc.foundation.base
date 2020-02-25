@@ -1,23 +1,24 @@
 var $ = require('jquery');
+require('@tschallacka/jquery.request');
 var controlUtils = require('@tschallacka/oc.foundation.controlutils');
 
 var Base = function(appName, element, options) 
 {
-    this.proxiedMethods = {}
-    if(typeof appName != 'undefined') {
-    	this.appName = appName;
-    }
-    if(typeof this.appName == 'undefined' || this.appName === null) {
-    	throw new Error("No appName defined for application");
-    }
-    this.appID = this.appName.replace(/[^a-z]+/gi, '').replace(/(.)([A-Z])/g, "$1-$2").toLowerCase();
-    this.appDataHandler = '[data-'+this.appID+']';	
-    this.oc = 'oc.'+this.appName;
-    this.$el = $(element); 
+  this.proxiedMethods = {}
+  if(typeof appName != 'undefined') {
+    this.appName = appName;
+  }
+  if(typeof this.appName == 'undefined' || this.appName === null) {
+    throw new Error("No appName defined for application");
+  }
+  this.appID = this.appName.replace(/[^a-z]+/gi, '').replace(/(.)([A-Z])/g, "$1-$2").toLowerCase();
+  this.appDataHandler = '[data-'+this.appID+']';	
+  this.oc = 'oc.'+this.appName;
+  this.$el = $(element); 
 	this.options = options || {};
 	if(element) {
-    	controlUtils.markDisposable(element);
-    	this.sysInit();
+    controlUtils.markDisposable(element);
+    this.sysInit();
 	}
 };
 
@@ -40,17 +41,17 @@ Base.prototype.dispose = function()
  */
 Base.prototype.proxy = function(method) 
 {	
-    if (method.ocProxyId === undefined) {    	
-        $.oc.foundation._proxyCounter++
-        method.ocProxyId = $.oc.foundation._proxyCounter
-    }
+  if (method.ocProxyId === undefined) {    	
+    $.oc.foundation._proxyCounter++
+    method.ocProxyId = $.oc.foundation._proxyCounter
+  }
 
-    if (this.proxiedMethods[method.ocProxyId] !== undefined) {
-        return this.proxiedMethods[method.ocProxyId];
-    }
-
-    this.proxiedMethods[method.ocProxyId] = method.bind(this);
+  if (this.proxiedMethods[method.ocProxyId] !== undefined) {
     return this.proxiedMethods[method.ocProxyId];
+  }
+
+  this.proxiedMethods[method.ocProxyId] = method.bind(this);
+  return this.proxiedMethods[method.ocProxyId];
 };
 
 /**
