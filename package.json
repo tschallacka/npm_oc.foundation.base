@@ -1,6 +1,6 @@
 {
   "name": "@tschallacka/oc.foundation.base",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "The base october foundation class where your own applications can extend from",
   "main": "oc.foundation.base.js",
   "scripts": {
@@ -23,7 +23,13 @@
     "@tschallacka/oc.foundation.controlutils": "^1.0.3",
     "jquery": "*"
   },
-  "author": "Tschallacka, OctoberCMS",
+  "author": "Tschallacka",
+  "contributors": [
+    {
+      "name": "OctoberCMS",
+      "url": "https://www.octobercms.com"
+    }
+  ],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/tschallacka/npm_oc.foundation.base/issues"
