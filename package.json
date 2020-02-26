@@ -18,10 +18,10 @@
     "jquery"
   ],
   "dependencies": {
-    "jquery": "*",
     "@tschallacka/jquery.oc.foundation": "*",
     "@tschallacka/jquery.request": "*",
-    "@tschallacka/oc.foundation.controlutils": "*"
+    "@tschallacka/oc.foundation.controlutils": "^1.0.3",
+    "jquery": "*"
   },
   "author": "Tschallacka, OctoberCMS",
   "license": "MIT",
