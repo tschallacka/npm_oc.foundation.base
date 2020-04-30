@@ -1,6 +1,6 @@
 {
   "name": "@tschallacka/oc.foundation.base",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "The base october foundation class where your own applications can extend from",
   "main": "oc.foundation.base.js",
   "scripts": {
@@ -21,7 +21,7 @@
     "@tschallacka/jquery.oc.foundation": "*",
     "@tschallacka/jquery.request": "*",
     "@tschallacka/oc.foundation.controlutils": "^1.0.3",
-    "jquery": "^3.5.0"
+    "jquery": "*"
   },
   "author": "Tschallacka",
   "contributors": [
