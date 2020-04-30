@@ -21,7 +21,7 @@
     "@tschallacka/jquery.oc.foundation": "*",
     "@tschallacka/jquery.request": "*",
     "@tschallacka/oc.foundation.controlutils": "^1.0.3",
-    "jquery": "*"
+    "jquery": "^3.5.0"
   },
   "author": "Tschallacka",
   "contributors": [
